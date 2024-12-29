@@ -1,7 +1,6 @@
 import math
 from linalg import vec3
 
-# Rounds using the typical rule of [x.0, x.5) -> x; [x.5, x+1) -> x+1
 def _round(f: float) -> float:
     return 1 if f > 1 else f
 
