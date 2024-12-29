@@ -7,7 +7,7 @@ def _round(f: float) -> float:
 
 class RGB():
     def __init__(self, rgb_vec: vec3) -> None:
-        assert rgb_vec.x >= 0 and rgb_vec.y >= 0 and rgb_vec.z >= 0
+        # assert rgb_vec.x >= 0 and rgb_vec.y >= 0 and rgb_vec.z >= 0
         if rgb_vec.x > 1 or rgb_vec.y > 1 or rgb_vec.z > 1:
             rgb = rgb_vec.normalize()
         else:

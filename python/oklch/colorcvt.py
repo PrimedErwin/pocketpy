@@ -2,18 +2,15 @@ import math
 from linalg import vec3
 
 def _round(f: float) -> float:
-    return 1 if f > 1 else f
+    return f if f > 1 else f
 
 def _linear_srgb_to_oklab(linear_srgb: vec3) -> vec3:
     assert linear_srgb.x >= 0 and linear_srgb.y >= 0 and linear_srgb.z >= 0
-    if linear_srgb.x > 1 or linear_srgb.y > 1 or linear_srgb.z > 1:
-        _linear_srgb = linear_srgb.normalize()
-    else:
-        _linear_srgb = linear_srgb
-        
-    l = vec3(0.4122214708, 0.5363325363, 0.0514459929).dot(_linear_srgb)
-    m = vec3(0.2119034982, 0.6806995451, 0.1073969566).dot(_linear_srgb)
-    s = vec3(0.0883024619, 0.2817188376, 0.6299787005).dot(_linear_srgb)
+    assert linear_srgb.x <= 1 and linear_srgb.y <= 1 and linear_srgb.z <= 1
+    
+    l = vec3(0.4122214708, 0.5363325363, 0.0514459929).dot(linear_srgb)
+    m = vec3(0.2119034982, 0.6806995451, 0.1073969566).dot(linear_srgb)
+    s = vec3(0.0883024619, 0.2817188376, 0.6299787005).dot(linear_srgb)
     
     l_ = math.pow(l, 1/3)
     m_ = math.pow(m, 1/3)
@@ -38,7 +35,7 @@ def _oklab_to_linear_srgb(oklab: vec3) -> vec3:
     return vec3(
         _round(vec3(4.0767416621, -3.3077115913, 0.2309699292).dot(lms)),
         _round(vec3(-1.2684380046, 2.6097574011, -0.3413193965).dot(lms)),
-        _round(vec3(-0.0041960863, 0.0415873371, 4.2860173251).dot(lms)))
+        _round(vec3(-0.0041960863, -0.7034186147, 1.7076147010).dot(lms)))
     
 def _oklab_to_oklch(oklab: vec3) -> vec3:
     c = math.pow(oklab.y ** 2 + oklab.z ** 2, 0.5)
