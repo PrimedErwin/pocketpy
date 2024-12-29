@@ -4,16 +4,16 @@ from linalg import vec3
 def _round(f: float) -> float:
     return 1 if f > 1 else f
 
-def _lrgb_to_oklab(lrgb: vec3) -> vec3:
-    assert lrgb.x >= 0 and lrgb.y >= 0 and lrgb.z >= 0
-    if lrgb.x > 1 or lrgb.y > 1 or lrgb.z > 1:
-        _lrgb = lrgb.normalize()
+def _linear_srgb_to_oklab(linear_srgb: vec3) -> vec3:
+    assert linear_srgb.x >= 0 and linear_srgb.y >= 0 and linear_srgb.z >= 0
+    if linear_srgb.x > 1 or linear_srgb.y > 1 or linear_srgb.z > 1:
+        _linear_srgb = linear_srgb.normalize()
     else:
-        _lrgb = lrgb
+        _linear_srgb = linear_srgb
         
-    l = vec3(0.4122214708, 0.5363325363, 0.0514459929).dot(_lrgb)
-    m = vec3(0.2119034982, 0.6806995451, 0.1073969566).dot(_lrgb)
-    s = vec3(0.0883024619, 0.2817188376, 0.6299787005).dot(_lrgb)
+    l = vec3(0.4122214708, 0.5363325363, 0.0514459929).dot(_linear_srgb)
+    m = vec3(0.2119034982, 0.6806995451, 0.1073969566).dot(_linear_srgb)
+    s = vec3(0.0883024619, 0.2817188376, 0.6299787005).dot(_linear_srgb)
     
     l_ = math.pow(l, 1/3)
     m_ = math.pow(m, 1/3)
@@ -25,7 +25,7 @@ def _lrgb_to_oklab(lrgb: vec3) -> vec3:
         vec3(1.9779984951, -2.4285922050, 0.4505937099).dot(lms_),
         vec3(0.0259040371, 0.7827717662, -0.8086757660).dot(lms_))
     
-def _oklab_to_lrgb(oklab: vec3) -> vec3:
+def _oklab_to_linear_srgb(oklab: vec3) -> vec3:
     l_ = vec3(1, 0.3963377774, 0.2158037573).dot(oklab)
     m_ = vec3(1, -0.1055613458, -0.0638541728).dot(oklab)
     s_ = vec3(1, -0.0894841775, -1.2914855480).dot(oklab)
@@ -52,10 +52,10 @@ def _oklch_to_oklab(oklch: vec3) -> vec3:
     b = math.sin(math.radians(oklch.z)) * oklch.y
     return vec3(oklch.x, a, b)
 
-def lrgb_to_oklch(lrgb: vec3) -> vec3:
-    return _oklab_to_oklch(_lrgb_to_oklab(lrgb))
+def linear_srgb_to_oklch(linear_srgb: vec3) -> vec3:
+    return _oklab_to_oklch(_linear_srgb_to_oklab(linear_srgb))
 
-def oklch_to_lrgb(oklch: vec3) -> vec3:
-    return _oklab_to_lrgb(_oklch_to_oklab(oklch))
+def oklch_to_linear_srgb(oklch: vec3) -> vec3:
+    return _oklab_to_linear_srgb(_oklch_to_oklab(oklch))
 
-__all__ = ['lrgb_to_oklch', 'oklch_to_lrgb']
+__all__ = ['linear_srgb_to_oklch', 'oklch_to_linear_srgb']

@@ -12,5 +12,5 @@ print(oklch_color.to_RGB())
 
 from python.oklch.colorcvt import *
 print("\ncolorcvt module test\n",'*'*20)
-print("OKLCH -> LRGB, ", oklch_to_lrgb(oklch_vec))
-print("LRGB -> OKLCH, ", lrgb_to_oklch(lrgb_vec))
+print("OKLCH -> LRGB, ", oklch_to_linear_srgb(oklch_vec))
+print("LRGB -> OKLCH, ", linear_srgb_to_oklch(lrgb_vec))
