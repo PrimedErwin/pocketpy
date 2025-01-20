@@ -464,7 +464,7 @@ void SequenceExpr__dtor(Expr* self_) {
     for(int i = 0; i < self->itemCount; i++) {
         vtdelete(self->items[i]);
     }
-    free(self->items);
+    PK_FREE(self->items);
 }
 
 bool TupleExpr__emit_store(Expr* self_, Ctx* ctx) {
@@ -526,7 +526,7 @@ static SequenceExpr* SequenceExpr__new(int line, const ExprVt* vt, int count, Op
     self->vt = vt;
     self->line = line;
     self->opcode = opcode;
-    self->items = malloc(sizeof(Expr*) * count);
+    self->items = PK_MALLOC(sizeof(Expr*) * count);
     self->itemCount = count;
     return self;
 }
@@ -1318,11 +1318,11 @@ static void Compiler__dtor(Compiler* self) {
     // free tokens
     for(int i = 0; i < self->tokens_length; i++) {
         if(self->tokens[i].value.index == TokenValue_STR) {
-            // free internal string
+            // PK_FREE internal string
             c11_string__delete(self->tokens[i].value._str);
         }
     }
-    free(self->tokens);
+    PK_FREE(self->tokens);
     // free contexts
     c11__foreach(Ctx, &self->contexts, ctx) Ctx__dtor(ctx);
     c11_vector__dtor(&self->contexts);
@@ -1359,7 +1359,7 @@ static NameScope name_scope(Compiler* self) {
 }
 
 Error* SyntaxError(Compiler* self, const char* fmt, ...) {
-    Error* err = malloc(sizeof(Error));
+    Error* err = PK_MALLOC(sizeof(Error));
     err->src = self->src;
     PK_INCREF(self->src);
     Token* t = self->i == self->tokens_length ? prev() : curr();
@@ -2269,8 +2269,10 @@ static Error* consume_pep695_py312(Compiler* self) {
     // https://peps.python.org/pep-0695/
     Error* err;
     if(match(TK_LBRACKET)) {
-        consume(TK_ID);
-        if(match(TK_COLON)) { check(consume_type_hints(self)); }
+        do {
+            consume(TK_ID);
+            if(match(TK_COLON)) check(consume_type_hints(self));
+        } while(match(TK_COMMA));
         consume(TK_RBRACKET);
     }
     return NULL;

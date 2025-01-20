@@ -13,7 +13,7 @@ static c11_vector /*T=char* */ _r_interned;
 void py_Name__initialize() {
     c11_smallmap_s2n__ctor(&_interned);
     for(int i = 0; i < _r_interned.length; i++) {
-        free(c11__at(char*, &_r_interned, i));
+        PK_FREE(c11__at(char*, &_r_interned, i));
     }
     c11_vector__ctor(&_r_interned, sizeof(c11_sv));
 
@@ -26,7 +26,7 @@ void py_Name__initialize() {
 void py_Name__finalize() {
     // free all char*
     for(int i = 0; i < _r_interned.length; i++) {
-        free(c11__getitem(char*, &_r_interned, i));
+        PK_FREE(c11__getitem(char*, &_r_interned, i));
     }
     c11_smallmap_s2n__dtor(&_interned);
     c11_vector__dtor(&_r_interned);
@@ -41,7 +41,7 @@ py_Name py_namev(c11_sv name) {
     // generate new index
     if(_interned.length > 65530) c11__abort("py_Name index overflow");
     // NOTE: we must allocate the string in the heap so iterators are not invalidated
-    char* p = malloc(name.size + 1);
+    char* p = PK_MALLOC(name.size + 1);
     memcpy(p, name.data, name.size);
     p[name.size] = '\0';
     c11_vector__push(char*, &_r_interned, p);

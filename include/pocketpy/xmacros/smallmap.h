@@ -59,14 +59,14 @@ void METHOD(ctor)(NAME* self) {
 void METHOD(dtor)(NAME* self) { c11_vector__dtor(self); }
 
 NAME* METHOD(new)() {
-    NAME* self = malloc(sizeof(NAME));
+    NAME* self = PK_MALLOC(sizeof(NAME));
     METHOD(ctor)(self);
     return self;
 }
 
 void METHOD(delete)(NAME* self) {
     METHOD(dtor)(self);
-    free(self);
+    PK_FREE(self);
 }
 
 void METHOD(set)(NAME* self, K key, V value) {

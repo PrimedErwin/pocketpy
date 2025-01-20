@@ -136,7 +136,7 @@ static void MemoryPool__ctor(MemoryPool* self) {
 static void* MemoryPool__alloc(MemoryPool* self) {
     MemoryPoolArena* arena;
     if(self->_arenas.length == 0){
-        arena = malloc(sizeof(MemoryPoolArena));
+        arena = PK_MALLOC(sizeof(MemoryPoolArena));
         MemoryPoolArena__ctor(arena);
         LinkedList__push_back(&self->_arenas, (LinkedListNode*)arena);
     } else {
@@ -169,14 +169,14 @@ static void MemoryPool__shrink_to_fit(MemoryPool* self) {
             MemoryPoolArena* arena = (MemoryPoolArena*)node;
             if(MemoryPoolArena__full(arena)) {
                 LinkedList__erase(&self->_arenas, node);
-                free(arena);
+                PK_FREE(arena);
             });
 }
 
 
 static void MemoryPool__dtor(MemoryPool* self) {
-    LinkedList__apply(&self->_arenas, free(node););
-    LinkedList__apply(&self->_empty_arenas, free(node););
+    LinkedList__apply(&self->_arenas, PK_FREE(node););
+    LinkedList__apply(&self->_empty_arenas, PK_FREE(node););
 }
 
 typedef struct FixedMemoryPool {
@@ -195,9 +195,9 @@ static void FixedMemoryPool__ctor(FixedMemoryPool* self, int BlockSize, int Bloc
     self->BlockSize = BlockSize;
     self->BlockCount = BlockCount;
     self->exceeded_bytes = 0;
-    self->data = malloc(BlockSize * BlockCount);
+    self->data = PK_MALLOC(BlockSize * BlockCount);
     self->data_end = self->data + BlockSize * BlockCount;
-    self->_free_list = malloc(sizeof(void*) * BlockCount);
+    self->_free_list = PK_MALLOC(sizeof(void*) * BlockCount);
     self->_free_list_end = self->_free_list;
     for(int i = 0; i < BlockCount; i++) {
         self->_free_list[i] = self->data + i * BlockSize;
@@ -205,8 +205,8 @@ static void FixedMemoryPool__ctor(FixedMemoryPool* self, int BlockSize, int Bloc
 }
 
 static void FixedMemoryPool__dtor(FixedMemoryPool* self) {
-    free(self->_free_list);
-    free(self->data);
+    PK_FREE(self->_free_list);
+    PK_FREE(self->data);
 }
 
 static void* FixedMemoryPool__alloc(FixedMemoryPool* self) {
@@ -215,7 +215,7 @@ static void* FixedMemoryPool__alloc(FixedMemoryPool* self) {
         return *self->_free_list_end;
     } else {
         self->exceeded_bytes += self->BlockSize;
-        return malloc(self->BlockSize);
+        return PK_MALLOC(self->BlockSize);
     }
 }
 
@@ -226,7 +226,7 @@ static void FixedMemoryPool__dealloc(FixedMemoryPool* self, void* p) {
         self->_free_list_end++;
     } else {
         self->exceeded_bytes -= self->BlockSize;
-        free(p);
+        PK_FREE(p);
     }
 }
 

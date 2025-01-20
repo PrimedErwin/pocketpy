@@ -225,7 +225,7 @@ static bool Random_choices(int argc, py_Ref argv) {
     if(!py_checktype(py_arg(3), tp_int)) return false;
     py_i64 k = py_toint(py_arg(3));
 
-    py_f64* cum_weights = malloc(sizeof(py_f64) * length);
+    py_f64* cum_weights = PK_MALLOC(sizeof(py_f64) * length);
     if(py_isnone(weights)) {
         for(int i = 0; i < length; i++)
             cum_weights[i] = i + 1;
@@ -233,21 +233,21 @@ static bool Random_choices(int argc, py_Ref argv) {
         py_TValue* w;
         int wlen = pk_arrayview(weights, &w);
         if(wlen == -1) {
-            free(cum_weights);
+            PK_FREE(cum_weights);
             return TypeError("choices(): weights must be a list or tuple");
         }
         if(wlen != length) {
-            free(cum_weights);
+            PK_FREE(cum_weights);
             return ValueError("len(weights) != len(population)");
         }
         if(!py_castfloat(&w[0], &cum_weights[0])) {
-            free(cum_weights);
+            PK_FREE(cum_weights);
             return false;
         }
         for(int i = 1; i < length; i++) {
             py_f64 tmp;
             if(!py_castfloat(&w[i], &tmp)) {
-                free(cum_weights);
+                PK_FREE(cum_weights);
                 return false;
             }
             cum_weights[i] = cum_weights[i - 1] + tmp;
@@ -256,7 +256,7 @@ static bool Random_choices(int argc, py_Ref argv) {
 
     py_f64 total = cum_weights[length - 1];
     if(total <= 0) {
-        free(cum_weights);
+        PK_FREE(cum_weights);
         return ValueError("total of weights must be greater than zero");
     }
 
@@ -269,7 +269,7 @@ static bool Random_choices(int argc, py_Ref argv) {
         py_list_setitem(py_retval(), i, p + index);
     }
 
-    free(cum_weights);
+    PK_FREE(cum_weights);
     return true;
 }
 

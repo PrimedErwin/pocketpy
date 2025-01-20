@@ -1,12 +1,17 @@
 #pragma once
 // clang-format off
 
-#define PK_VERSION				"2.0.4"
+#define PK_VERSION				"2.0.5"
 #define PK_VERSION_MAJOR            2
 #define PK_VERSION_MINOR            0
-#define PK_VERSION_PATCH            4
+#define PK_VERSION_PATCH            5
 
 /*************** feature settings ***************/
+
+// Reduce the startup memory usage for embedded systems
+#ifndef PK_LOW_MEMORY_MODE          // can be overridden by cmake
+#define PK_LOW_MEMORY_MODE          0
+#endif
 
 // Whether to compile os-related modules or not
 #ifndef PK_ENABLE_OS                // can be overridden by cmake
@@ -15,27 +20,37 @@
 
 // GC min threshold
 #ifndef PK_GC_MIN_THRESHOLD         // can be overridden by cmake
-#define PK_GC_MIN_THRESHOLD         16384
+    #if PK_LOW_MEMORY_MODE
+        #define PK_GC_MIN_THRESHOLD     2048
+    #else
+        #define PK_GC_MIN_THRESHOLD     16384
+    #endif
 #endif
 
-/*************** debug settings ***************/
-// Do not edit the following settings unless you know what you are doing
-#define PK_DEBUG_CEVAL_STEP         0
-#define PK_DEBUG_MEMORY_POOL        0
-#define PK_DEBUG_NO_AUTO_GC         0
-#define PK_DEBUG_GC_STATS           0
-#define PK_DEBUG_COMPILER           0
-
-/*************** internal settings ***************/
+// Memory allocation functions
+#ifndef PK_MALLOC
+#define PK_MALLOC(size)             malloc(size)
+#define PK_REALLOC(ptr, size)       realloc(ptr, size)
+#define PK_FREE(ptr)                free(ptr)
+#endif
 
 // This is the maximum size of the value stack in py_TValue units
 // The actual size in bytes equals `sizeof(py_TValue) * PK_VM_STACK_SIZE`
-#define PK_VM_STACK_SIZE            16384
+#ifndef PK_VM_STACK_SIZE            // can be overridden by cmake
+    #if PK_LOW_MEMORY_MODE
+        #define PK_VM_STACK_SIZE    2048
+    #else
+        #define PK_VM_STACK_SIZE    16384
+    #endif
+#endif
 
 // This is the maximum number of local variables in a function
 // (not recommended to change this)
+#ifndef PK_MAX_CO_VARNAMES          // can be overridden by cmake
 #define PK_MAX_CO_VARNAMES          64
+#endif
 
+/*************** internal settings ***************/
 // This is the maximum character length of a module path
 #define PK_MAX_MODULE_PATH_LEN      63
 

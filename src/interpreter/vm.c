@@ -17,7 +17,7 @@ static char* pk_default_importfile(const char* path) {
     fseek(f, 0, SEEK_END);
     long size = ftell(f);
     fseek(f, 0, SEEK_SET);
-    char* buffer = malloc(size + 1);
+    char* buffer = PK_MALLOC(size + 1);
     size = fread(buffer, 1, size, f);
     buffer[size] = 0;
     fclose(f);
@@ -218,9 +218,11 @@ void VM__ctor(VM* self) {
     pk__add_module_enum();
     pk__add_module_inspect();
     pk__add_module_pickle();
+    pk__add_module_importlib();
 
     pk__add_module_conio();
-    pk__add_module_lz4();
+    pk__add_module_lz4();       // optional
+    pk__add_module_libhv();     // optional
     pk__add_module_pkpy();
 
     // add python builtins
@@ -572,7 +574,7 @@ void PyObject__delete(PyObject* self) {
     if(ti->dtor) ti->dtor(PyObject__userdata(self));
     if(self->slots == -1) NameDict__dtor(PyObject__dict(self));
     if(self->gc_is_large) {
-        free(self);
+        PK_FREE(self);
     } else {
         PoolObject_dealloc(self);
     }
@@ -649,11 +651,19 @@ void ManagedHeap__mark(ManagedHeap* self) {
     // 0-th type is placeholder
     for(py_Type i = 1; i < types_length; i++) {
         py_TypeInfo* ti = TypeList__get(&vm->types, i);
-        // mark magic slots
-        for(int j = 0; j <= __missing__; j++) {
-            py_TValue* slot = ti->magic + j;
+        // mark common magic slots
+        for(int j = 0; j < PK_MAGIC_SLOTS_COMMON_LENGTH; j++) {
+            py_TValue* slot = ti->magic_0 + j;
             if(py_isnil(slot)) continue;
             pk__mark_value(slot);
+        }
+        // mark uncommon magic slots
+        if(ti->magic_1) {
+            for(int j = 0; j < PK_MAGIC_SLOTS_UNCOMMON_LENGTH; j++) {
+                py_TValue* slot = ti->magic_1 + j;
+                if(py_isnil(slot)) continue;
+                pk__mark_value(slot);
+            }
         }
         // mark type annotations
         pk__mark_value(&ti->annotations);

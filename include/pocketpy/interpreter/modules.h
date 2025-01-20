@@ -15,6 +15,7 @@ void pk__add_module_traceback();
 void pk__add_module_enum();
 void pk__add_module_inspect();
 void pk__add_module_pickle();
+void pk__add_module_importlib();
 
 void pk__add_module_linalg();
 void pk__add_module_array2d();
@@ -23,3 +24,9 @@ void pk__add_module_colorcvt();
 void pk__add_module_conio();
 void pk__add_module_lz4();
 void pk__add_module_pkpy();
+
+#ifdef PK_BUILD_MODULE_LIBHV
+void pk__add_module_libhv();
+#else
+#define pk__add_module_libhv()
+#endif

@@ -100,6 +100,7 @@ void c11_sbuf__write_quoted(c11_sbuf* self, c11_sv sv, char quote) {
             case '\b': c11_sbuf__write_cstrn(self, "\\b", 2); break;
             default: {
                 int u8bytes = c11__u8_header(c, true);
+                if(i + u8bytes > sv.size) u8bytes = 0;  // invalid utf8
                 if(u8bytes <= 1) {
                     // not a valid utf8 char, or ascii
                     if(!isprint(c)) {
@@ -252,7 +253,7 @@ int py_replinput(char* buf, int max_size) {
     printf(">>> ");
 
     while(true) {
-        char c = getchar();
+        int c = getchar();
         if(c == EOF) return -1;
 
         if(c == '\n') {

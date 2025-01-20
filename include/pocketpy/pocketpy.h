@@ -159,6 +159,8 @@ PK_API void py_newstr(py_OutRef, const char*);
 PK_API char* py_newstrn(py_OutRef, int);
 /// Create a `str` object from a `c11_sv`.
 PK_API void py_newstrv(py_OutRef, c11_sv);
+/// Create a formatted `str` object.
+PK_API void py_newfstr(py_OutRef, const char*, ...);
 /// Create a `bytes` object with `n` UNINITIALIZED bytes.
 PK_API unsigned char* py_newbytes(py_OutRef, int n);
 /// Create a `None` object.
@@ -485,11 +487,13 @@ PK_API bool py_pusheval(const char* expr, py_GlobalRef module) PY_RAISE;
 PK_API py_GlobalRef py_newmodule(const char* path);
 /// Get a module by path.
 PK_API py_GlobalRef py_getmodule(const char* path);
+/// Reload an existing module.
+PK_API bool py_importlib_reload(py_GlobalRef module) PY_RAISE PY_RETURN;
 
 /// Import a module.
 /// The result will be set to `py_retval()`.
 /// -1: error, 0: not found, 1: success
-PK_API int py_import(const char* path) PY_RAISE;
+PK_API int py_import(const char* path) PY_RAISE PY_RETURN;
 
 /************* Errors *************/
 

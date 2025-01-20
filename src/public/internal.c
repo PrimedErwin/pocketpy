@@ -22,6 +22,11 @@ void py_initialize() {
     bool is_little_endian = *(char*)&x == 1;
     if(!is_little_endian) c11__abort("is_little_endian != true");
 
+    // check py_TValue; 16 bytes to make py_arg() macro work
+    static_assert(sizeof(py_CFunction) <= 8, "sizeof(py_CFunction) > 8");
+    static_assert(sizeof(py_TValue) == 16, "sizeof(py_TValue) != 16");
+    static_assert(offsetof(py_TValue, extra) == 4, "offsetof(py_TValue, extra) != 4");
+
     MemoryPools__initialize();
     py_Name__initialize();
 
@@ -51,7 +56,7 @@ void py_finalize() {
             // TODO: refactor VM__ctor and VM__dtor
             pk_current_vm = vm;
             VM__dtor(vm);
-            free(vm);
+            PK_FREE(vm);
         }
     }
     pk_current_vm = &pk_default_vm;
@@ -64,7 +69,7 @@ void py_finalize() {
 void py_switchvm(int index) {
     if(index < 0 || index >= 16) c11__abort("invalid vm index");
     if(!pk_all_vm[index]) {
-        pk_current_vm = pk_all_vm[index] = malloc(sizeof(VM));
+        pk_current_vm = pk_all_vm[index] = PK_MALLOC(sizeof(VM));
         memset(pk_current_vm, 0, sizeof(VM));
         VM__ctor(pk_all_vm[index]);
     } else {
@@ -147,7 +152,7 @@ bool py_callcfunc(py_CFunction f, int argc, py_Ref argv) {
     }
     if(py_checkexc(true)) {
         const char* name = py_tpname(pk_current_vm->curr_exception.type);
-        c11__abort("py_CFunction returns `true`, but `%s` is set!", name);
+        c11__abort("py_CFunction returns `true`, but `%s` was set!", name);
     }
     return true;
 }
@@ -225,8 +230,8 @@ py_Ref py_tpfindmagic(py_Type t, py_Name name) {
     assert(py_ismagicname(name));
     py_TypeInfo* ti = pk__type_info(t);
     do {
-        py_Ref f = &ti->magic[name];
-        if(!py_isnil(f)) return f;
+        py_Ref f = TypeList__magic_readonly_nullable(ti, name);
+        if(f != NULL) return f;
         ti = ti->base_ti;
     } while(ti);
     return NULL;
@@ -244,7 +249,8 @@ py_Ref py_tpfindname(py_Type t, py_Name name) {
 
 py_Ref py_tpgetmagic(py_Type type, py_Name name) {
     assert(py_ismagicname(name));
-    return pk__type_info(type)->magic + name;
+    py_TypeInfo* ti = pk__type_info(type);
+    return TypeList__magic(ti, name);
 }
 
 py_Ref py_tpobject(py_Type type) {

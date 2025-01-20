@@ -1,5 +1,6 @@
 #include "pocketpy/interpreter/heap.h"
 #include "pocketpy/common/memorypool.h"
+#include "pocketpy/config.h"
 #include "pocketpy/objects/base.h"
 
 void ManagedHeap__ctor(ManagedHeap* self, VM* vm) {
@@ -8,6 +9,8 @@ void ManagedHeap__ctor(ManagedHeap* self, VM* vm) {
 
     self->gc_threshold = PK_GC_MIN_THRESHOLD;
     self->gc_counter = 0;
+    self->gc_enabled = true;
+
     self->vm = vm;
 
     self->gc_on_delete = NULL;
@@ -27,6 +30,7 @@ void ManagedHeap__dtor(ManagedHeap* self) {
 }
 
 void ManagedHeap__collect_if_needed(ManagedHeap* self) {
+    if(!self->gc_enabled) return;
     if(self->gc_counter < self->gc_threshold) return;
     self->gc_counter = 0;
     ManagedHeap__collect(self);
@@ -91,11 +95,11 @@ PyObject* PyObject__new(py_Type type, int slots, int size) {
     PyObject* self;
     // header + slots + udsize
     size = sizeof(PyObject) + PK_OBJ_SLOTS_SIZE(slots) + size;
-    if(size <= kPoolObjectBlockSize) {
+    if(!PK_LOW_MEMORY_MODE && size <= kPoolObjectBlockSize) {
         self = PoolObject_alloc();
         self->gc_is_large = false;
     } else {
-        self = malloc(size);
+        self = PK_MALLOC(size);
         self->gc_is_large = true;
     }
     self->type = type;
