@@ -83,7 +83,7 @@ def ws_server_2_client_test(serv: libhv.HttpServer, client: libhv.WebSocketClien
 if INTERACTIVE_TEST:
     # test WebSocket client start
     a_client = libhv.WebSocketClient()
-    a_error = a_client.open(ws_client_url)
+    a_error = a_client.open(ws_client_url+'/ws')
     assert libhv.strerror(a_error) == 'OK'
 
     # test client to server msg

@@ -4,7 +4,7 @@ except ImportError:
     print('libhv module is not enabled, please check CmakeLists.')
     exit()
 
-INTERACTIVE_TEST = True
+INTERACTIVE_TEST = False
 
 remote_host = '127.0.0.1'
 remote_port = 8080
