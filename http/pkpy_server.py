@@ -2,7 +2,6 @@ import libhv
 
 url = 'http://127.0.0.1:8080'
 ws_url = 'ws://127.0.0.1:8080/ws'
-fixed_data = 'Test message from server'
 channel_id = 0
 
 server = libhv.HttpServer('127.0.0.1', 8080)
@@ -10,8 +9,10 @@ server.ws_set_ping_interval(1000)
 server.start()
 
 # http dispatcher
-def simple_dispatcher(req: libhv.HttpRequest) -> tuple[str, int]:
-    return (fixed_data, 200)
+def simple_dispatcher(req: libhv.HttpRequest) -> tuple[str | bytes, int]:
+    return (req.data, 200)
+
+print('Server started...')
 
 while 1:
     server.dispatch(simple_dispatcher)
@@ -24,6 +25,5 @@ while 1:
             channel_id = WsChannel
         elif WsMessageType == 'onmessage':
             channel_id, msg = WsChannel
-    if channel_id:
-        server.ws_send(channel_id, fixed_data)
+            server.ws_send(channel_id, msg)
 

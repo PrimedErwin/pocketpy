@@ -6,14 +6,19 @@ import websockets.sync.client
 import websockets.sync.connection
 
 ws_url = 'ws://127.0.0.1:8080/ws'
-fixed_data = 'Test message from client'
+ws_data: str
 
 requested_time = 0
 
+with open('ws_100b.txt', 'r', encoding='utf-8') as f:
+    line = f.readline()
+    ws_data = line
+
 # def websocket client
 def client_ws(ws: websockets.sync.connection.Connection) -> None:
-    ws.send(fixed_data)
+    ws.send(ws_data)
     msg = ws.recv()
+    assert msg == ws_data
     # print(msg)
 
 # websocket connect to server
