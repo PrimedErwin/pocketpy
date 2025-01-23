@@ -17,6 +17,7 @@ def client_ws(ws: libhv.WebSocketClient) -> None:
     msg = ws.recv()
     while msg is None:
         msg = ws.recv()
+    # print(requested_time, msg)
     if msg[1] is not None:
         assert msg[1] == ws_data
 
