@@ -203,8 +203,11 @@ static bool list__mul__(int argc, py_Ref argv) {
         py_newlist(py_retval());
         List* list = py_touserdata(py_retval());
         List* list_0 = py_touserdata(_0);
-        for(int i = 0; i < n; i++) {
-            c11_vector__extend(py_TValue, list, list_0->data, list_0->length);
+        size_t output_size = n * list_0->length;
+        c11_vector__reserve(list, output_size);
+        for (int i = 0; i < n; i++) {
+            memcpy((py_TValue*)list->data + i * list_0->length, list_0->data, list_0->length * sizeof(py_TValue));
+            list->length += list_0->length;
         }
     } else {
         py_newnotimplemented(py_retval());
