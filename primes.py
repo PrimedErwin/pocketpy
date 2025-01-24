@@ -160,6 +160,6 @@ while result_ns == 0:
 
     end_ns = time.time()
     result_ns = end_ns-start_ns
-print(f'verify spend = {start_ns}-{end_ns}={result_ns} s')
+print(f'verify spend = {start_ns}-{end_ns}={result_ns} sec')
 
 
