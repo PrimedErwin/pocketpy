@@ -204,13 +204,13 @@ static bool builtins_input(int argc, py_Ref argv) {
         if(!py_checkstr(argv)) return false;
         prompt = py_tostr(argv);
     }
-    printf("%s", prompt);
+    pk_current_vm->callbacks.print(prompt);
 
     c11_sbuf buf;
     c11_sbuf__ctor(&buf);
     while(true) {
         int c = pk_current_vm->callbacks.getchar();
-        if(c == '\n') break;
+        if(c == '\n' || c == '\r') break;
         if(c == EOF) break;
         c11_sbuf__write_char(&buf, c);
     }
@@ -456,8 +456,7 @@ static bool builtins_chr(int argc, py_Ref argv) {
     PY_CHECK_ARG_TYPE(0, tp_int);
     py_i64 val = py_toint(py_arg(0));
     if(val < 0 || val > 128) { return ValueError("chr() arg not in range(128)"); }
-    char* data = py_newstrn(py_retval(), 1);
-    data[0] = (char)val;
+    py_assign(py_retval(), &pk_current_vm->ascii_literals[val]);
     return true;
 }
 
