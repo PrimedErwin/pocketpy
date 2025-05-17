@@ -14,10 +14,11 @@ if(MSVC)
 elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-model=strict -O2")
 else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fexcess-precision=standard -ffp-contract=off")
 endif()
 
-add_library(${PROJECT_NAME} STATIC ${MUSL_LIBC_MATH_SRC})
+#add_library(${PROJECT_NAME} STATIC ${MUSL_LIBC_MATH_SRC})
+add_executable(${PROJECT_NAME} ${MUSL_LIBC_MATH_SRC})
 
 
 # if(MSVC)

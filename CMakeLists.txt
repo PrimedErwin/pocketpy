@@ -55,7 +55,7 @@ if(PK_ENABLE_DETERMINISTIC_FLOAT)
     elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffp-model=strict -O2")
     else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fexcess-precision=standard -ffp-contract=off")
     endif()
 endif()
 
