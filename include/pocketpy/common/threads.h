@@ -21,5 +21,6 @@ typedef int c11_thrd_retval_t;
 
 bool c11_thrd_create(c11_thrd_t* thrd, c11_thrd_retval_t (*func)(void*), void* arg);
 void c11_thrd_yield();
-
+#else
+#define _Thread_local
 #endif
